@@ -1,0 +1,46 @@
+Questão 1:
+
+No servidor FTP onde a aplicação é recebida diariamente, é construída uma rotina para realizar o deploy automático no servidor de aplicação remoto.
+
+Suponhamos que as atualizações chegam todos os dias úteis às 09:00 da manhã;
+Que existam chaves trocadas entre o servidor FTP e o servidor de aplicação e há conectividade via SSH garantindo um canal de comunicação não-interativo entre ambos. 
+
+
+De posse das informações acima, no servidor FTP uma rotina agendada no cron executa para que todos os dias úteis às 10h da manhã uma validação prévia ocorra no pacote a ser atualizado e se realmente for diferente do que está no servidor, faça a atualização.
+
+
+crontab:
+
+0 10 * * 1-5 usuario /usr/local/bin/atualiza_ambiente.sh
+
+
+Script atualiza_ambiente.sh
+-----------
+
+#!bin/bash
+
+## Gera a soma md5 do pacote recebido e guarda na variável 
+NEWPACSUM=`md5sum /var/lib/ftp/app-acme-service.jar | cut -d" " -f1` 
+
+## Gera a soma md5 do pacote que está em execução no servidor remoto e guada na variável
+PACSUM=`ssh usuario@servidor md5sum /opt/app/app-acme-service.jar | cut -d" " -f1`
+
+## Compara as duas somas e se o pacote for realmente diferente executa procedimentos de atualização, caso contrário não faz nada.
+ 
+if [ "$NEWPACSUM" != "$PACSUM" ]
+then
+	# Pára a aplicação no servidor remoto já que normalmente aplicações com servidor embarcado respondem parâmetros de serviço.
+    ssh usuario@servidor /opt/app/app-acme-service.jar stop
+	
+	# Copia o novo pacote para o destino
+	scp /var/lib/ftp/app-acme-service.jar usuario@servidor:/opt/app/
+
+	# Inicializa novamente a aplicação já atualizada no servidor remoto
+	ssh usuario@servidor java -jar /opt/app/app-acme-service.jar &
+	
+	# Envia e-mail notificando que a atualização foi realizada
+	echo "Pacote recebido e atualização realizada" | mailx -s "Atualizações diárias" admin@acme.com
+else
+	#envia e-mail informando o administrador de que não houve atualização do pacote
+    echo "Nenhuma atualização recebida hoje" | mailx -s "Atualizações diárias" admin@acme.com
+fi
