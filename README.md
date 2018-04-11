@@ -1,4 +1,4 @@
-# Project01 (Load Balance com Nodejs + NGINX + Docker)
+# Projeto  (Load Balance com Nodejs + NGINX + Docker)
 
 Tudo o que precisaremos para testar essa arquitetura é o Docker. Como as instâncias de nosso aplicativo Node.js e NGINX serão executadas dentro de contêineres Docker, não precisaremos instalá-las em nossa máquina de desenvolvimento. Para instalar o Docker podemos consultar aqui:
 
@@ -92,6 +92,7 @@ Agora vamos criar o Dockerfile que será usado para "dockerizar" o NGINX com est
 FROM nginx
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 Tendo criado os dois arquivos, agora podemos construir e executar o NGINX em contêineres no Docker. Conseguimos isso executando os seguintes comandos:
 
 docker build -t load-balance-nginx .
