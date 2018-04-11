@@ -25,7 +25,7 @@ Supondo que você já tenha instalado o Node.js , crie um diretório para armaze
 $ mkdir myapp
 $ cd myapp
 
-Use o npm initcomando para criar um package.jsonarquivo para seu aplicativo. Para obter mais informações sobre como package.jsonfunciona, consulte Específicos do manuseio package.json do npm .
+Use o npm init comando para criar um package.json arquivo para seu aplicativo. Para obter mais informações sobre como package.json funciona, consulte Específicos do manuseio package.json do npm .
 
 $ npm init
 
@@ -33,15 +33,16 @@ Esse comando solicita várias coisas, como o nome e a versão do seu aplicativo.
 
 entry point: (index.js)
 
-Digite app.js, ou o que você quiser, o nome do arquivo principal. Se você quiser index.js, tecle RETURN para aceitar o nome do arquivo padrão sugerido.
+Digite app.js, ou o nome do arquivo principal. Se você quiser index.js, tecle RETURN para aceitar o nome do arquivo padrão sugerido.
 
-Agora instale o Express no myappdiretório e salve-o na lista de dependências. Por exemplo:
+Agora instale o Express no myapp diretório e salve-o na lista de dependências. Por exemplo:
 
 $ npm install express --save
 
 Execute o aplicativo com o seguinte comando:
 
 $ node app.js
+
 Em seguida, carregue http://localhost:3000/ em um navegador para ver a saída para testar.
 
 
@@ -60,6 +61,7 @@ docker build -t load-balanced-app .
 Podemos executar as duas instâncias do nosso aplicativo com os seguintes comandos:
 
 docker run -e "MESSAGE=First instance" -p 8081:8080 -d load-balanced-app
+
 docker run -e "MESSAGE=Second instance" -p 8082:8080 -d load-balanced-app
 
 Abrir ambas as instâncias em um navegador da Web, indo para http://localhost:8081 e http://localhost:8082. O primeiro URL mostrará uma mensagem dizendo "Primeira instância", o segundo URL mostrará uma mensagem dizendo "Segunda instância".
