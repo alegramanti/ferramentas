@@ -1,0 +1,121 @@
+Nodejs com REDIS
+
+' use strict ' ;
+
+// Definir todas as dependências necessárias
+const  express  =  require ( ' express ' );
+const  responseTime  =  require ( ' tempo de resposta ' )
+ axios  const =  require ( ' axios ' );
+const  redis  =  require ( ' redis ' );
+ cliente  const =  redis . createClient ();
+
+// Carregar o Express Framework
+var app =  express ();
+
+// Cria um middleware que adiciona um cabeçalho X-Response-Time às respostas.
+app . use ( responseTime ());
+
+const  getBook  = ( req , res ) => {
+  let isbn =  req . consulta . isbn ;
+  deixe url =  ` https://www.googleapis.com/books/v1/volumes?q=isbn: $ { isbn } ` ;
+  return  axios . get (url)
+    . então ( resposta  => {
+      deixe livro =  resposta . dados . itens ;
+      // Configura a string-chave: isbn em nosso cache. Com o conteúdo do cache: title
+      // Definir a expiração do cache para 1 hora (60 minutos)
+      cliente . setex (isbn, 3600 , JSON . stringify (livro));
+
+      res . enviar (livro);
+    })
+    . catch ( err  => {
+      res . send ( ' O livro que você está procurando não foi encontrado !!! ' );
+    });
+};
+
+const  getCache  = ( req , res ) => {
+  let isbn =  req . consulta . isbn ;
+  // Verifique os dados do cache do servidor redis
+  cliente . get (isbn, ( err , resultado ) => {
+    if (resultado) {
+      res . enviar (resultado);
+    } mais {
+      getBook (req, res);
+    }
+  });
+}
+
+app . get ( ' / book ' , getCache);
+
+app . listen ( 3000 , function () {
+  console . log ( ' Seu nó está rodando na porta 3000 !!! ' )
+});
+
+
+Você pode ver, o código acima explica que os redis armazenarão os dados do cache com valor de chave único que especificamos, usando esta função:
+
+client.setex (isbn, 3600, JSON.stringify (book));
+
+E pegue os dados do cache usando a função abaixo:
+
+client.get (isbn, (err, resultado) => { 
+     if (resultado) { 
+       res.send (resultado); 
+     } mais { 
+       getBook (req, res); 
+     } 
+   });
+   
+   Este é o resultado do teste, usamos o redis como cache, são apenas 0.621 ms para recuperar dados no mesmo endpoint.
+   
+     
+VERIFICAR SCRIPTS DE ERRO COM LOG: 
+
+   
+O processo de log que as pessoas costumam usar é console.log ('Log Ouput') por padrão ele irá inserir alguns logs no padrão de saída (stdout) e console.error ('Log Error') também irá em padrão de erro ( stderr). No entanto, pode ser usado um módulo de registro mais popular e eficiente, tais como Winston, Morgane Buyan. 
+Vou dar um exemplo usando o winston. Em geral, Winston tem 4 níveis personalizados que podemos usar tais como: error, warn, info, verbose, debug, e silly.
+
+Alguns recursos que podem ser usados no winston:
+
+-Possível usar vários transportes do mesmo tipo
+-Perfis simples
+-Suporta a consulta de logs
+-Possível capturar e registrar uncaughtException
+-Definindo o nível para sua mensagem de registro
+
+Primeiro de tudo, precisamos instalar o Winston e incluir o winston no novo projeto ou que você tenha desenvolvido. Execute o seguinte comando para fazer isso:
+
+npm instalar winston - save
+
+Esta é a configuração básica que usamos:
+   
+const winston = require('winston');
+
+let logger = new winston.Logger({
+  transports: [
+    new winston.transports.File({
+      level: 'verbose',
+      timestamp: new Date(),
+      filename: 'filelog-verbose.log',
+      json: false,
+    }),
+    new winston.transports.File({
+      level: 'error',
+      timestamp: new Date(),
+      filename: 'filelog-error.log',
+      json: false,
+    })
+  ]
+});
+
+logger.stream = {
+  write: function(message, encoding) {
+    logger.info(message);
+  }
+};   
+   
+
+Pelo código acima, sabemos que usamos a configuração de vários transportes, com dois níveis de registro que são detalhados e com erro.
+
+
+
+
