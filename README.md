@@ -11,6 +11,7 @@ Como criar um aplicativo simples do Node.js que serve um arquivo HTML, o contêi
 Para criar o diretório, vamos emitir o seguinte comando: mkdir application. Depois disso, vamos criar o index.js arquivo nesse diretório e colar o seguinte código-fonte:
 
 var http = require('http');
+
 var fs = require('fs');
 
 http.createServer(function (req, res) {
